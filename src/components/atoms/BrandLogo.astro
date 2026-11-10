@@ -1,0 +1,61 @@
+---
+import { Image } from "astro:assets";
+import brandCloud from "../shared/icons/nube.png";
+import emblem from "../shared/icons/logo-emblema.png";
+import wordmark from "../shared/icons/logo-texto.png";
+import motto from "../shared/icons/logo-lema.png";
+
+interface Props {
+  /** Muestra la nube PNG detrás del logo (false cuando la nube la dibuja el contenedor). */
+  cloud?: boolean;
+  /** Muestra el lema «Jugando y Explorando mi Futuro voy Creando». */
+  tagline?: boolean;
+}
+const { cloud = true, tagline = false } = Astro.props;
+---
+
+<a class="brand" href="/" aria-label="Gimnasio Infantil Estrellas del Saber, ir al inicio">
+  {cloud && <Image src={brandCloud} alt="" width={260} format="webp" quality={78} loading="eager" class="brandCloud" />}
+  <Image src={emblem} alt="" width={240} format="webp" quality={90} loading="eager" class="brand__mark" />
+  <span class="brand__text">
+    <Image src={wordmark} alt="" width={640} format="webp" quality={92} loading="eager" class="brand__word" />
+    {tagline && <Image src={motto} alt="" width={528} format="webp" quality={92} loading="eager" class="brand__lema" />}
+  </span>
+</a>
+
+<style>
+  .brand {
+    position: relative;
+    z-index: 1;
+    display: inline-grid;
+    flex: 0 0 auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: .4rem;
+    width: clamp(15rem, 20.8vw, 20.5rem);
+    min-width: 0;
+    padding: .4rem .8rem .4rem .5rem;
+    text-decoration: none;
+  }
+  .brandCloud { position: absolute; z-index: 0; inset: -.45rem -.55rem; width: calc(100% + 1.1rem); height: calc(100% + .9rem); object-fit: fill; filter: drop-shadow(0 4px 5px rgb(26 73 153 / 12%)); pointer-events: none; }
+  .brand__mark, .brand__word, .brand__lema { position: relative; z-index: 1; display: block; height: auto; object-fit: contain; }
+  .brand__mark { width: 4.6rem; filter: drop-shadow(0 2px 3px rgb(26 73 153 / 18%)); }
+  .brand__text { position: relative; z-index: 1; display: grid; gap: .15rem; min-width: 0; }
+  .brand__word, .brand__lema { width: 100%; max-width: 100%; }
+
+  @media (min-width: 768px) {
+    .brandCloud { inset: -.45rem -1.3rem; left: -2.1rem; width: calc(100% + 3.4rem); }
+  }
+  @media (max-width: 767px) {
+    .brand { width: min(15rem, 44vw); gap: .3rem; padding: .3rem 1.2rem .3rem .4rem; }
+    .brand__mark { width: 3.3rem; }
+  }
+  @media (max-width: 430px) {
+    .brand { width: min(11rem, 42vw); gap: .2rem; padding: .25rem .9rem .25rem .3rem; }
+    .brand__mark { width: 2.7rem; }
+  }
+  @media (max-width: 370px) {
+    .brand { width: min(9rem, 40vw); }
+    .brand__mark { width: 2.3rem; }
+  }
+</style>

@@ -1,0 +1,147 @@
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;500;600;700;800;900&display=swap");
+
+:root {
+  font-family: "Nunito", "Trebuchet MS", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  color: #10285f;
+  background: #f7f9ff;
+  font-weight: 600;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background:
+    radial-gradient(
+      ellipse at 12% 13%,
+      rgb(255 255 255 / 88%),
+      transparent 31rem
+    ),
+    radial-gradient(
+      ellipse at 89% 34%,
+      rgb(231 240 255 / 75%),
+      transparent 35rem
+    ),
+    #f7f9ff;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+button,
+a {
+  font: inherit;
+}
+a {
+  color: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #7a4bff;
+  outline-offset: 4px;
+}
+
+.page-preview {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  min-height: 70vh;
+  padding: clamp(5rem, 12vw, 10rem) 1.5rem 6rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+.page-preview::before,
+.page-preview::after {
+  position: absolute;
+  z-index: -1;
+  width: 14rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  content: "";
+}
+
+.page-preview::before {
+  top: 8rem;
+  left: max(-5rem, calc(50% - 32rem));
+  background: radial-gradient(
+    circle,
+    #fff0a5 0 37%,
+    #fff6d3 38% 59%,
+    transparent 60%
+  );
+}
+
+.page-preview::after {
+  top: 16rem;
+  right: max(-4rem, calc(50% - 33rem));
+  background: radial-gradient(
+    circle,
+    #c7f5dc 0 37%,
+    #e7fff1 38% 59%,
+    transparent 60%
+  );
+}
+
+.page-preview__sparkle {
+  display: grid;
+  width: 3rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 1rem;
+  color: #ffba00;
+  background: #fff1bb;
+  font-size: 1.7rem;
+  box-shadow: 0 8px 20px rgb(227 169 37 / 20%);
+}
+
+.page-preview__eyebrow {
+  margin: 1.2rem 0 0.6rem;
+  color: #1686ca;
+  font-size: 0.83rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.page-preview h1 {
+  margin: 0;
+  color: #12275b;
+  font-size: clamp(2.5rem, 7vw, 5.25rem);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.page-preview h1 span {
+  color: #ec4c9b;
+}
+
+.page-preview__copy {
+  max-width: 30rem;
+  margin: 1.25rem 0 0;
+  color: #536687;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

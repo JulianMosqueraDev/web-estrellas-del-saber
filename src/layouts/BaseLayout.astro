@@ -1,0 +1,23 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/shared/Navbar.astro';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Colegio Estrellas del Saber' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <Navbar />
+    <slot />
+  </body>
+</html>

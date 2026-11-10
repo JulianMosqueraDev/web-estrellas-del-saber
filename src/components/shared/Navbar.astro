@@ -1,0 +1,682 @@
+---
+import { Image } from "astro:assets";
+import BrandLogo from "../atoms/BrandLogo.astro";
+import Icon from "../atoms/Icon.astro";
+import NavigationIcon from "../atoms/NavigationIcon.astro";
+import type { NavigationIconName } from "../atoms/navigation-icon.types";
+
+import arcoiris from "./icons/arcoiris.png";
+import cohete from "./icons/cohete.png";
+import dinosaurio from "./icons/dinosaurio.png";
+import estrella from "./icons/estrella.png";
+import estrellaAmarilla from "./icons/estrella-amarilla.png";
+import nina from "./icons/niña.png";
+import nino from "./icons/nño.png";
+import pasto1 from "./icons/pasto1.png";
+import pasto2 from "./icons/pasto2.png";
+import planeta from "./icons/planeta.png";
+
+/* =====================================================================
+   La escena desktop/tablet usa un lienzo de 1440 × 256 unidades.
+   1 unidad = 100cqw / 1440, así toda la ilustración escala junta.
+   Las coordenadas salen de mocks/navbar/navbar.png.
+   ===================================================================== */
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: NavigationIconName;
+  /** x, ancho y variante de nube dentro del lienzo */
+  x: number;
+  w: number;
+  shape: 0 | 1 | 2;
+}
+
+const links: NavItem[] = [
+  { href: "/", label: "Inicio", icon: "home", x: 310, w: 124, shape: 0 },
+  { href: "/nosotros", label: "Nosotros", icon: "people", x: 424, w: 120, shape: 0 },
+  { href: "/niveles", label: "Niveles", icon: "levels", x: 542, w: 112, shape: 1 },
+  { href: "/metodologia", label: "Metodología", icon: "methodology", x: 652, w: 140, shape: 2 },
+  { href: "/experiencias", label: "Experiencias", icon: "experiences", x: 790, w: 140, shape: 0 },
+  { href: "/eventos", label: "Eventos", icon: "events", x: 928, w: 108, shape: 1 },
+  { href: "/contacto", label: "Contacto", icon: "contact", x: 1034, w: 116, shape: 2 },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
+
+const pos = (x: number, y: number, w: number, h?: number) =>
+  `--x:${x};--y:${y};--w:${w}${h !== undefined ? `;--h:${h}` : ""}`;
+
+/** Contorno ondulado: cada tramo [xFin, yFin, altura] es una curva Bézier. */
+type Bump = [number, number, number];
+function bumps(x0: number, y0: number, list: Bump[]) {
+  let d = "";
+  for (const [x1, y1, h] of list) {
+    const dx = x1 - x0;
+    d += ` C${(x0 + dx * 0.06).toFixed(1)} ${y0 - h} ${(x1 - dx * 0.06).toFixed(1)} ${y1 - h} ${x1} ${y1}`;
+    x0 = x1;
+    y0 = y1;
+  }
+  return d;
+}
+
+/** Bumps pseudoaleatorios (semilla fija) para el césped: alturas y anchos variados. */
+function grassBumps(seed: number, from: number, to: number, base: number, hMin: number, hMax: number) {
+  let s = seed;
+  const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+  const out: Bump[] = [];
+  let x = from;
+  while (x < to - 20) {
+    x = Math.min(to - 10, x + 34 + rnd() * 62);
+    out.push([Math.round(x), Math.round(base + (rnd() - 0.5) * 8), Math.round(hMin + rnd() * (hMax - hMin))]);
+  }
+  return out;
+}
+
+// Cielo: borde superior con lomas orgánicas de distintos tamaños
+const skyPath =
+  "M374 222 L374 160 C368 132 386 118 412 118" +
+  bumps(412, 118, [
+    [468, 110, 30], [552, 104, 52], [612, 114, 26], [706, 98, 58], [792, 108, 46],
+    [846, 114, 24], [944, 96, 56], [1022, 108, 42], [1086, 102, 34], [1148, 112, 30], [1190, 122, 20],
+  ]) +
+  " C1216 124 1224 150 1220 170 L1220 222 Z";
+
+const skyHills =
+  "M380 222 L380 168" +
+  bumps(380, 168, [
+    [446, 158, 22], [520, 164, 28], [600, 154, 26], [690, 162, 32], [770, 152, 24],
+    [860, 160, 30], [950, 150, 26], [1040, 160, 30], [1120, 152, 24], [1214, 166, 22],
+  ]) +
+  " L1214 222 Z";
+
+// Nubes del fondo (tono azulado) — capa media
+const backClouds =
+  "M296 240 L296 186" +
+  bumps(296, 186, [
+    [350, 160, 40], [418, 154, 36], [470, 162, 24], [544, 150, 44], [602, 160, 28],
+    [672, 152, 40], [732, 160, 26], [804, 150, 42], [862, 160, 28], [934, 152, 40],
+    [992, 160, 26], [1062, 150, 42], [1120, 160, 30], [1172, 158, 22], [1248, 160, 20],
+    [1320, 156, 22], [1392, 158, 34], [1438, 198, 28],
+  ]) +
+  " L1438 240 Z";
+
+// Nubes blancas delanteras — soporte de los botones
+const frontClouds =
+  "M290 244 L290 198" +
+  bumps(290, 198, [
+    [342, 174, 30], [402, 180, 22], [454, 172, 30], [522, 178, 24], [578, 170, 32],
+    [642, 178, 22], [702, 172, 30], [772, 180, 24], [832, 170, 32], [902, 178, 22],
+    [962, 172, 30], [1032, 180, 24], [1092, 170, 30], [1150, 174, 26], [1222, 166, 30],
+    [1290, 172, 26], [1362, 164, 30], [1418, 176, 26], [1440, 208, 16],
+  ]) +
+  " L1440 244 Z";
+
+// Nube institucional del logo: horizontal, lomas de distintas alturas
+const logoCloud =
+  "M34 246 C8 246 -2 226 8 208 C-6 190 -2 152 20 146" +
+  bumps(20, 146, [
+    [60, 114, 30], [106, 112, 34], [152, 112, 20], [200, 114, 16],
+    [248, 112, 16], [292, 114, 14], [330, 132, 16],
+  ]) +
+  " C352 134 362 160 350 182 C362 204 352 246 322 246 Z";
+
+// Césped: dos capas de lomas con distintas alturas
+const grassBack =
+  "M40 252 C16 252 6 234 14 214" + bumps(14, 214, grassBumps(7, 14, 1428, 212, 12, 26)) + " C1438 236 1426 252 1400 252 Z";
+const grassFront =
+  "M40 254 C18 254 6 242 10 226" + bumps(10, 226, grassBumps(31, 10, 1432, 226, 6, 16)) + " C1436 242 1424 254 1400 254 Z";
+
+// Siluetas de nube para los botones (3 variantes, viewBox 140 × 110)
+const cloudShapes = [
+  "M22 102C8 102 1 90 6 78 0 66 7 52 21 51 19 34 35 22 51 28 57 12 81 6 93 20 105 14 123 24 121 40 135 44 141 60 133 73 141 86 131 102 116 102Z",
+  "M20 102C6 101 1 88 8 76 2 63 12 50 27 52 27 38 41 29 55 34 61 17 83 11 95 26 111 20 127 32 123 48 137 52 141 69 132 79 139 93 127 103 112 102Z",
+  "M24 102C10 102 3 92 7 80 1 70 7 57 21 56 20 41 33 29 48 33 51 21 64 13 76 18 86 8 106 12 110 29 124 29 136 43 130 57 140 65 138 83 128 89 126 100 118 103 108 102Z",
+];
+
+// Elementos de la escena: [x, y, ancho]
+const skyStars: [number, number, number][] = [
+  [470, 96, 24], [544, 92, 28], [630, 98, 22], [946, 92, 28], [1014, 104, 22],
+];
+const sparkles: [number, number, number][] = [
+  [500, 132, 7], [588, 124, 6], [760, 128, 8], [880, 96, 6], [998, 132, 7], [1110, 92, 8], [1160, 136, 6],
+];
+
+// Franja de nubes para la versión móvil (viewBox 400 × 40)
+const mobileCloudStrip =
+  "M0 40 L0 24" +
+  bumps(0, 24, [
+    [26, 22, 14], [58, 26, 10], [88, 20, 16], [120, 25, 11], [150, 21, 14], [186, 26, 9],
+    [214, 20, 15], [248, 24, 12], [280, 21, 14], [312, 26, 10], [344, 20, 15], [374, 25, 11], [400, 22, 13],
+  ]) +
+  " L400 40 Z";
+---
+
+<header class="site-header">
+  <div class="nav-shell">
+    <!-- ================= Desktop / tablet: ilustración ================= -->
+    <div class="stage">
+      <!-- Capa 1 · Cielo -->
+      <svg class="layer layer--sky" viewBox="0 0 1440 256" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="nb-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#36a9ee" />
+            <stop offset=".55" stop-color="#7fd0fb" />
+            <stop offset="1" stop-color="#c6ebff" />
+          </linearGradient>
+          <linearGradient id="nb-cloud" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff" />
+            <stop offset=".55" stop-color="#ffffff" />
+            <stop offset="1" stop-color="#e3f0fc" />
+          </linearGradient>
+          <linearGradient id="nb-cloud-back" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f4f9ff" />
+            <stop offset="1" stop-color="#d6e9fa" />
+          </linearGradient>
+          <linearGradient id="nb-grass" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a6e85a" />
+            <stop offset=".5" stop-color="#6fcf37" />
+            <stop offset="1" stop-color="#47ad26" />
+          </linearGradient>
+          <linearGradient id="nb-grass-back" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#7fd645" />
+            <stop offset="1" stop-color="#3f9f22" />
+          </linearGradient>
+        </defs>
+        <path d={skyPath} fill="url(#nb-sky)" stroke="#ffffff" stroke-opacity=".7" stroke-width="3" />
+        <path d={skyHills} fill="#a9e2ff" fill-opacity=".55" />
+        <path
+          d="M420 150C462 118 512 132 550 114S632 98 682 114M792 106C830 96 852 120 884 110M962 112C1000 96 1040 128 1082 112S1150 104 1188 122"
+          fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="8 9" stroke-linecap="round"
+        />
+        {sparkles.map(([x, y, s]) => (
+          <path d={`M${x} ${y - s}L${x + s * 0.28} ${y - s * 0.28} ${x + s} ${y} ${x + s * 0.28} ${y + s * 0.28} ${x} ${y + s} ${x - s * 0.28} ${y + s * 0.28} ${x - s} ${y} ${x - s * 0.28} ${y - s * 0.28}Z`} fill="#fff" />
+        ))}
+      </svg>
+
+      <!-- Capa 2 · Personajes y decoración (detrás de las nubes) -->
+      <div class="layer layer--deco" aria-hidden="true">
+        <Image src={arcoiris} alt="" width={340} format="webp" quality={76} loading="eager" class="abs" style={pos(48, 50, 162)} />
+        <Image src={pasto2} alt="" width={240} format="webp" quality={74} class="abs" style={pos(1328, 74, 112)} />
+        <Image src={nino} alt="" width={320} format="webp" quality={80} loading="eager" class="abs" style={pos(176, 6, 160)} />
+        <Image src={dinosaurio} alt="" width={260} format="webp" quality={78} loading="eager" class="abs" style={pos(318, 52, 122)} />
+        <Image src={estrella} alt="" width={240} format="webp" quality={80} loading="eager" class="abs float" style={pos(650, 18, 112)} />
+        <Image src={cohete} alt="" width={260} format="webp" quality={78} loading="eager" class="abs float float--b" style={pos(812, 10, 128)} />
+        <Image src={planeta} alt="" width={240} format="webp" quality={78} loading="eager" class="abs float float--c" style={pos(1028, 22, 118)} />
+        <Image src={nina} alt="" width={360} format="webp" quality={80} loading="eager" class="abs" style={pos(1158, -6, 178)} />
+        {skyStars.map(([x, y, w]) => (
+          <Image src={estrellaAmarilla} alt="" width={64} format="webp" quality={72} class="abs" style={pos(x, y, w)} />
+        ))}
+      </div>
+
+      <!-- Capa 3 · Nubes y césped -->
+      <svg class="layer layer--front" viewBox="0 0 1440 256" aria-hidden="true" focusable="false">
+        <path d={backClouds} fill="url(#nb-cloud-back)" stroke="#cfe3f6" stroke-width="2" />
+        <path d={frontClouds} fill="url(#nb-cloud)" stroke="#d2e5f7" stroke-width="2" />
+        <defs>
+          <linearGradient id="nb-logo-cloud" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff" />
+            <stop offset=".62" stop-color="#ffffff" />
+            <stop offset="1" stop-color="#e6f2fd" />
+          </linearGradient>
+          <filter id="nb-logo-glow" x="-15%" y="-25%" width="130%" height="150%">
+            <feDropShadow dx="0" dy="3" stdDeviation="7" flood-color="#3d9fe6" flood-opacity=".32" />
+          </filter>
+        </defs>
+        <path d={logoCloud} fill="url(#nb-logo-cloud)" stroke="#a9d7f6" stroke-width="3" filter="url(#nb-logo-glow)" />
+        <path d="M30 150C40 134 52 126 66 124M110 104C124 98 140 98 152 104" fill="none" stroke="#dff0fd" stroke-width="3" stroke-linecap="round" />
+        <path d={grassBack} fill="url(#nb-grass-back)" />
+        <path d={grassFront} fill="url(#nb-grass)" stroke="#3f9f22" stroke-width="1.6" />      </svg>
+
+      <!-- Capa 4 · Arbustos -->
+      <div class="layer layer--bushes" aria-hidden="true">
+        <Image src={pasto1} alt="" width={200} format="webp" quality={74} class="abs" style={pos(-6, 180, 92)} />
+        <Image src={pasto2} alt="" width={120} format="webp" quality={72} class="abs" style={pos(600, 214, 40)} />
+        <Image src={pasto1} alt="" width={120} format="webp" quality={72} class="abs" style={pos(1148, 204, 54)} />
+        <Image src={pasto2} alt="" width={120} format="webp" quality={72} class="abs" style={pos(1390, 202, 52)} />
+      </div>
+
+      <!-- Capa 5 · Contenido interactivo -->
+      <div class="abs stage__brand" style={pos(24, 120, 288, 76)}>
+        <BrandLogo cloud={false} tagline />
+      </div>
+
+      <nav class="stage__nav" aria-label="Principal">
+        <ul>
+          {links.map((link, i) => {
+            const active = isActive(link.href);
+            return (
+              <li>
+                <a
+                  href={link.href}
+                  class:list={["abs", "cloud-link", { "is-active": active }]}
+                  style={active ? pos(link.x, 122, link.w, 124) : pos(link.x, 128, link.w, 104)}
+                  aria-current={active ? "page" : undefined}
+                  title={link.label}
+                >
+                  {active ? (
+                    <Image src={estrellaAmarilla} alt="" width={260} format="webp" quality={82} loading="eager" class="cloud-link__star" />
+                  ) : (
+                    <svg class="cloud-link__shape" viewBox="0 0 140 110" preserveAspectRatio="none" aria-hidden="true">
+                      <path d={cloudShapes[link.shape]} fill="url(#nb-cloud)" stroke="#cde1f5" stroke-width="1.8" />
+                      <path d={i % 2 ? "M30 50C38 42 50 40 60 42" : "M36 40C46 30 60 28 70 32"} fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    </svg>
+                  )}
+                  <NavigationIcon name={link.icon} size={48} idPrefix={`desk-${link.icon}`} />
+                  <span class="cloud-link__label">{link.label}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <a class="abs pill-cta" href="/contacto#agenda" style={pos(1160, 154, 204, 56)}>
+        <Icon name="calendar" size={22} />
+        <span class="pill-cta__label">Agenda una visita</span>
+      </a>
+      <button class="abs search-btn" type="button" aria-label="Buscar" style={pos(1374, 155, 54, 54)}>
+        <Icon name="search" size={24} />
+      </button>
+    </div>
+
+    <!-- ================= Móvil ================= -->
+    <div class="mbar">
+      <div class="mbar__sky" aria-hidden="true">
+        <svg class="mbar__clouds" viewBox="0 0 400 40" preserveAspectRatio="none">
+          <path d={mobileCloudStrip} fill="#fff" />
+        </svg>
+      </div>
+      <Image src={pasto1} alt="" width={100} format="webp" quality={72} class="mbar__tuft mbar__tuft--l" aria-hidden="true" />
+      <Image src={pasto2} alt="" width={100} format="webp" quality={72} class="mbar__tuft mbar__tuft--r" aria-hidden="true" />
+      <BrandLogo />
+      <div class="mbar__actions">
+        <a class="mbar__cta" href="/contacto#agenda">
+          <Icon name="calendar" size={20} />
+          <span class="mbar__cta-label">Agenda una visita</span>
+        </a>
+        <button class="mbar__search" type="button" aria-label="Buscar"><Icon name="search" size={22} /></button>
+        <button class="mbar__menu" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>
+          <Icon name="menu" size={24} />
+        </button>
+      </div>
+    </div>
+
+    <div class="mmenu" id="mobile-menu" hidden>
+      <div class="mmenu__head">
+        <svg class="mbar__clouds" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">
+          <path d={mobileCloudStrip} fill="#fff" />
+        </svg>
+        <BrandLogo />
+        <Image src={estrella} alt="" width={120} format="webp" quality={75} class="mmenu__deco mmenu__deco--star" aria-hidden="true" />
+        <Image src={cohete} alt="" width={120} format="webp" quality={75} class="mmenu__deco mmenu__deco--rocket" aria-hidden="true" />
+        <button class="mmenu__close" type="button" aria-label="Cerrar menú" data-menu-close>
+          <Icon name="close" size={24} />
+        </button>
+      </div>
+      <nav aria-label="Principal móvil">
+        <ul class="mmenu__list">
+          {links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class:list={["mmenu__link", { "is-active": isActive(link.href) }]}
+                aria-current={isActive(link.href) ? "page" : undefined}
+              >
+                <NavigationIcon name={link.icon} size={40} idPrefix={`mob-${link.icon}`} />
+                <span>{link.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <a class="mmenu__cta" href="/contacto#agenda">
+        <Icon name="calendar" size={22} />
+        <span>Agenda una visita</span>
+      </a>
+      <Image src={pasto2} alt="" width={140} format="webp" quality={72} class="mmenu__grass mmenu__grass--l" aria-hidden="true" />
+      <Image src={pasto1} alt="" width={140} format="webp" quality={72} class="mmenu__grass mmenu__grass--r" aria-hidden="true" />
+    </div>
+  </div>
+</header>
+
+<script>
+  const openBtn = document.querySelector<HTMLButtonElement>("[data-menu-open]");
+  const closeBtn = document.querySelector<HTMLButtonElement>("[data-menu-close]");
+  const menu = document.getElementById("mobile-menu");
+
+  if (openBtn && closeBtn && menu) {
+    const setOpen = (open: boolean, restoreFocus = true) => {
+      menu.hidden = !open;
+      openBtn.setAttribute("aria-expanded", String(open));
+      if (open) closeBtn.focus();
+      else if (restoreFocus) openBtn.focus();
+    };
+
+    openBtn.addEventListener("click", () => setOpen(true));
+    closeBtn.addEventListener("click", () => setOpen(false));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !menu.hidden) setOpen(false);
+    });
+    window.matchMedia("(min-width: 768px)").addEventListener("change", (e) => {
+      if (e.matches && !menu.hidden) setOpen(false, false);
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    --navy: #13306f;
+    position: relative;
+    z-index: 50;
+    padding: 1rem clamp(.75rem, 2vw, 1.5rem) 0;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+  }
+
+  .nav-shell {
+    position: relative;
+    max-width: 1480px;
+    margin: 0 auto;
+    container-type: inline-size;
+  }
+
+  /* ================= Escena (≥ 768px) ================= */
+  .stage {
+    --u: calc(100cqw / 1440);
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1440 / 256;
+  }
+
+  .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .layer--sky { z-index: 0; }
+  .layer--deco { z-index: 1; }
+  .layer--front { z-index: 2; filter: drop-shadow(0 calc(6 * var(--u)) calc(8 * var(--u)) rgb(30 80 150 / 16%)); }
+  .layer--bushes { z-index: 3; }
+
+  .abs {
+    position: absolute;
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(var(--w) * var(--u));
+  }
+  img.abs { height: auto; object-fit: contain; }
+  .layer--deco img { filter: drop-shadow(0 calc(4 * var(--u)) calc(5 * var(--u)) rgb(26 73 153 / 18%)); }
+
+  .float { animation: float 4.5s ease-in-out infinite; }
+  .float--b { animation-duration: 5.5s; animation-delay: -1.5s; }
+  .float--c { animation-duration: 6.5s; animation-delay: -3s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(calc(-6 * var(--u))) rotate(-3deg); }
+  }
+
+  /* Logo dentro de la nube grande */
+  .stage__brand { z-index: 4; height: calc(var(--h) * var(--u)); display: flex; align-items: center; }
+  .stage .stage__brand :global(.brand) {
+    width: 100%;
+    gap: calc(6 * var(--u));
+    padding: 0;
+  }
+  .stage .stage__brand :global(.brand__mark) { width: calc(70 * var(--u)); }
+  .stage .stage__brand :global(.brand__text) { gap: calc(3 * var(--u)); }
+  @media (max-width: 1023px) {
+    .stage .stage__brand :global(.brand__lema) { display: none; }
+  }
+
+  /* Botones-nube */
+  .stage__nav ul { margin: 0; padding: 0; list-style: none; }
+  .cloud-link {
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--h) * var(--u));
+    padding-top: calc(12 * var(--u));
+    color: var(--navy);
+    font-size: calc(19 * var(--u));
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    filter: drop-shadow(0 calc(5 * var(--u)) calc(5 * var(--u)) rgb(30 80 150 / 18%));
+    transition: transform .22s ease, filter .22s ease;
+  }
+  .cloud-link__shape,
+  .cloud-link__star {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .cloud-link :global(svg:not(.cloud-link__shape)) {
+    width: calc(50 * var(--u));
+    height: calc(50 * var(--u));
+    margin-bottom: calc(3 * var(--u));
+    transition: transform .25s ease;
+  }
+  .cloud-link:hover { transform: translateY(calc(-5 * var(--u))); filter: drop-shadow(0 calc(10 * var(--u)) calc(9 * var(--u)) rgb(30 80 150 / 24%)); }
+  .cloud-link:hover :global(svg:not(.cloud-link__shape)) { transform: scale(1.08) rotate(-5deg); }
+
+  .cloud-link.is-active {
+    padding-top: calc(26 * var(--u));
+    filter: drop-shadow(0 calc(6 * var(--u)) calc(7 * var(--u)) rgb(210 130 0 / 30%));
+  }
+  .cloud-link.is-active :global(svg:not(.cloud-link__shape)) { width: calc(42 * var(--u)); height: calc(42 * var(--u)); }
+
+  /* Botón rosa y buscador */
+  .pill-cta {
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(9 * var(--u));
+    height: calc(var(--h) * var(--u));
+    border: calc(3.5 * var(--u)) solid #fff;
+    border-radius: 999px;
+    color: #fff;
+    font-size: calc(19 * var(--u));
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    background: linear-gradient(180deg, #ff74ad 0%, #f2468c 50%, #e52a76 100%);
+    box-shadow:
+      0 calc(6 * var(--u)) calc(12 * var(--u)) rgb(229 42 118 / 32%),
+      inset 0 calc(-4 * var(--u)) 0 rgb(160 20 80 / 22%),
+      inset 0 calc(3 * var(--u)) 0 rgb(255 255 255 / 28%);
+    transition: transform .2s ease;
+  }
+  .pill-cta :global(svg) { width: calc(22 * var(--u)); height: calc(22 * var(--u)); }
+  .search-btn {
+    z-index: 4;
+    display: grid;
+    height: calc(var(--h) * var(--u));
+    place-items: center;
+    padding: 0;
+    border: calc(3.5 * var(--u)) solid #fff;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    background: radial-gradient(circle at 35% 30%, #6fdcff, #1b9cf0 55%, #1179d8);
+    box-shadow: 0 calc(6 * var(--u)) calc(12 * var(--u)) rgb(17 121 216 / 32%), inset 0 calc(-4 * var(--u)) 0 rgb(10 70 150 / 22%);
+    transition: transform .2s ease;
+  }
+  .search-btn :global(svg) { width: calc(24 * var(--u)); height: calc(24 * var(--u)); }
+  .pill-cta:hover, .search-btn:hover { transform: translateY(calc(-3 * var(--u))); }
+
+  /* Tablet: solo iconos en las nubes */
+  @media (max-width: 1199px) {
+    .cloud-link__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .cloud-link { padding-top: calc(16 * var(--u)); }
+    .cloud-link :global(svg:not(.cloud-link__shape)) { width: calc(60 * var(--u)); height: calc(60 * var(--u)); }
+    .cloud-link.is-active { padding-top: calc(16 * var(--u)); }
+    .cloud-link.is-active :global(svg:not(.cloud-link__shape)) { width: calc(52 * var(--u)); height: calc(52 * var(--u)); }
+    .pill-cta { font-size: max(11px, calc(19 * var(--u))); }
+    .pill-cta :global(svg) { width: max(14px, calc(22 * var(--u))); height: max(14px, calc(22 * var(--u))); }
+  }
+  @media (max-width: 899px) {
+    .pill-cta__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .pill-cta { left: calc(1250 * var(--u)); width: calc(108 * var(--u)); }
+    .pill-cta :global(svg) { width: calc(30 * var(--u)); height: calc(30 * var(--u)); }
+  }
+
+  /* ================= Móvil (≤ 767px) ================= */
+  .mbar, .mmenu { display: none; }
+
+  @media (max-width: 767px) {
+    .site-header { padding-top: .6rem; }
+    .stage { display: none; }
+
+    .mbar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      min-height: 5.4rem;
+      padding: .4rem .7rem .7rem .4rem;
+      border: 3px solid #fff;
+      border-radius: 2rem;
+      box-shadow: 0 0 0 2px #d6e9fb, 0 12px 24px rgb(26 73 153 / 16%);
+    }
+    .mbar__sky {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle 1px at 30% 30%, #fff 98%, transparent) 0 0 / 2.3rem 1.9rem,
+        linear-gradient(180deg, #36a9ee, #9bdcfd);
+    }
+    .mbar__clouds { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 1.6rem; }
+    .mbar__tuft { position: absolute; z-index: 1; bottom: -.35rem; width: 2.8rem; height: auto; object-fit: contain; pointer-events: none; }
+    .mbar__tuft--l { left: -.5rem; }
+    .mbar__tuft--r { right: -.5rem; width: 2.4rem; }
+    .mbar > :global(.brand) { z-index: 2; margin-right: auto; }
+    .mbar__actions { position: relative; z-index: 2; display: flex; align-items: center; gap: .4rem; }
+
+    .mbar__cta, .mmenu__cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .45rem;
+      min-height: 2.9rem;
+      padding: .4rem 1rem;
+      border: 3px solid #fff;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      white-space: nowrap;
+      background: linear-gradient(180deg, #ff74ad, #e52a76);
+      box-shadow: 0 6px 12px rgb(229 42 118 / 30%), inset 0 -3px 0 rgb(160 20 80 / 20%);
+    }
+    .mbar__search, .mbar__menu, .mmenu__close {
+      display: inline-grid;
+      flex: 0 0 auto;
+      width: 2.9rem;
+      aspect-ratio: 1;
+      place-items: center;
+      padding: 0;
+      border: 3px solid #fff;
+      cursor: pointer;
+    }
+    .mbar__search { border-radius: 50%; color: #fff; background: radial-gradient(circle at 35% 30%, #6fdcff, #1b9cf0 55%, #1179d8); box-shadow: 0 6px 12px rgb(17 121 216 / 30%); }
+    .mbar__menu { border-radius: .95rem; color: #fff; background: linear-gradient(180deg, #8d7bff, #5b46e6); box-shadow: 0 6px 12px rgb(91 70 230 / 30%); }
+
+    .mmenu {
+      position: absolute;
+      z-index: 10;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: block;
+      overflow: hidden;
+      padding-bottom: 1.4rem;
+      border: 3px solid #fff;
+      border-radius: 2rem;
+      background: linear-gradient(180deg, #f2f8ff, #fff 45%);
+      box-shadow: 0 0 0 2px #d6e9fb, 0 20px 40px rgb(26 73 153 / 24%);
+      animation: drop .22s ease-out;
+    }
+    .mmenu[hidden] { display: none; }
+    @keyframes drop { from { opacity: 0; transform: translateY(-10px) scale(.98); } }
+    .mmenu__head {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-height: 5.6rem;
+      padding: .4rem .8rem 1.1rem .4rem;
+      background:
+        radial-gradient(circle 1px at 30% 30%, #fff 98%, transparent) 0 0 / 2.3rem 1.9rem,
+        linear-gradient(180deg, #36a9ee, #9bdcfd);
+    }
+    .mmenu__head > :global(.brand) { z-index: 1; }
+    .mmenu__deco { position: absolute; height: auto; object-fit: contain; pointer-events: none; }
+    .mmenu__deco--star { left: 56%; top: .7rem; width: 3.4rem; }
+    .mmenu__deco--rocket { left: 73%; top: .5rem; width: 3.2rem; }
+    .mmenu__close { position: relative; z-index: 1; margin: 0 0 .5rem auto; border-radius: 50%; color: var(--navy); background: #fff; box-shadow: 0 4px 10px rgb(26 73 153 / 20%); }
+    .mmenu__list { display: grid; grid-template-columns: repeat(4, 1fr); gap: .65rem; margin: 0; padding: 1rem 1rem 1.2rem; list-style: none; }
+    .mmenu__link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .2rem;
+      min-height: 5.6rem;
+      padding: .6rem .3rem;
+      border: 2px solid #fff;
+      border-radius: 1.3rem;
+      color: var(--navy);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.05;
+      text-align: center;
+      text-decoration: none;
+      background: #fff;
+      box-shadow: 0 4px 12px rgb(26 73 153 / 13%);
+    }
+    .mmenu__link.is-active { border-color: #ffe27a; background: #fff3b4; }
+    .mmenu__cta { position: relative; z-index: 1; display: flex; width: min(22rem, calc(100% - 6rem)); margin: 0 auto; font-size: 1.05rem; }
+    .mmenu__grass { position: absolute; bottom: -.3rem; width: 4.4rem; height: auto; object-fit: contain; pointer-events: none; }
+    .mmenu__grass--l { left: -.5rem; }
+    .mmenu__grass--r { right: -.5rem; }
+  }
+
+  @media (max-width: 560px) {
+    .mbar__cta { width: 2.9rem; padding: 0; }
+    .mbar__cta-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .mmenu__list { grid-template-columns: repeat(3, 1fr); }
+    .mmenu__link { font-size: .88rem; }
+    .mmenu__deco--rocket { display: none; }
+  }
+  @media (max-width: 400px) {
+    .mbar { gap: .3rem; padding-right: .5rem; }
+    .mbar__cta, .mbar__search, .mbar__menu { width: 2.6rem; min-height: 2.6rem; }
+    .mmenu__list { gap: .5rem; padding-inline: .75rem; }
+    .mmenu__link { min-height: 5rem; font-size: .8rem; }
+    .mmenu__deco--star { display: none; }
+  }
+  @media (max-width: 340px) {
+    .mmenu__list { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
