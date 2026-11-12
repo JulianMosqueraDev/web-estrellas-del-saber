@@ -20,10 +20,11 @@
    --hu  1 unidad del mock (1 px del mock a 1536) → todas las medidas del hero en escritorio.
    --nav-max  el navbar escala con el lienzo, con la misma proporción que en el mock.
    Calibrado: el hero completo mide ≈ 0,686 × --fw de alto → --fw ≤ alto / 0,686 ≈ alto × 1,45.
-   Mínimo 1080 px para que los textos sigan legibles (en ventanas muy bajas queda un poco de scroll). */
+   Mínimo 1000 px: así también cabe en laptops con escala 125 % (ventana ≈ 1536 × 730);
+   por debajo de eso queda scroll, pero no uno mínimo de pocos píxeles. */
 @media (min-width: 1200px) {
   :root {
-    --fw: min(100vw - 2.5rem, clamp(1080px, (100svh - 1rem) * 1.45, 1680px));
+    --fw: min(100vw - 2.5rem, clamp(1000px, (100svh - 1rem) * 1.45, 1680px));
     --hu: calc(var(--fw) / 1536);
     --nav-max: min(1480px, var(--fw) * 0.82);
   }
@@ -31,7 +32,7 @@
 
 @media (max-width: 767px) {
   :root {
-    --nav-h: 7rem;
+    --nav-h: 5.6rem; /* alto real medido de la barra móvil (≈ 88–92 px) */
   }
 }
 
@@ -62,6 +63,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  /* Espacio del navbar fijo (Navbar.astro ajusta --nav-h a su alto real) */
+  padding-top: var(--nav-h);
   /* Respaldo para navegadores sin overflow: clip (iOS < 16): evita que la página se
      mueva de lado al hacer scroll en el teléfono. En body no afecta al navbar fijo. */
   overflow-x: hidden;
