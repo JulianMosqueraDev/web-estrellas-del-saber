@@ -330,13 +330,9 @@ const mobileCloudStrip =
     </div>
 
     <div class="mmenu" id="mobile-menu" hidden>
+      <!-- Cabecera limpia: logo completo (con lema) sobre fondo claro, sin nube ni decoración -->
       <div class="mmenu__head">
-        <svg class="mbar__clouds" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true">
-          <path d={mobileCloudStrip} fill="#fff" />
-        </svg>
-        <BrandLogo />
-        <Image src={estrella} alt="" width={120} format="webp" quality={75} class="mmenu__deco mmenu__deco--star" aria-hidden="true" />
-        <Image src={cohete} alt="" width={120} format="webp" quality={75} class="mmenu__deco mmenu__deco--rocket" aria-hidden="true" />
+        <BrandLogo cloud={false} tagline />
         <button class="mmenu__close" type="button" aria-label="Cerrar menú" data-menu-close>
           <Icon name="close" size={24} />
         </button>
@@ -368,6 +364,22 @@ const mobileCloudStrip =
 </header>
 
 <script>
+  // Marca el navbar cuando la página ya se desplazó (muestra la franja de fondo).
+  // Solo toca el DOM cuando el estado cambia (no en cada evento de scroll).
+  const header = document.querySelector<HTMLElement>(".site-header");
+  if (header) {
+    let stuck = false;
+    const update = () => {
+      const next = window.scrollY > 4;
+      if (next !== stuck) {
+        stuck = next;
+        header.classList.toggle("is-stuck", stuck);
+      }
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+  }
+
   const openBtn = document.querySelector<HTMLButtonElement>("[data-menu-open]");
   const closeBtn = document.querySelector<HTMLButtonElement>("[data-menu-close]");
   const menu = document.getElementById("mobile-menu");
@@ -392,13 +404,35 @@ const mobileCloudStrip =
 </script>
 
 <style>
+  /* Fijo arriba al hacer scroll (sticky: arriba de todo ocupa su lugar normal,
+     así el hero no se mueve) */
   .site-header {
     --navy: #13306f;
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 50;
     padding: .3rem clamp(.75rem, 2vw, 1.5rem) 0;
     font-family: "Baloo 2", "Nunito", sans-serif;
+    /* Capa propia en la GPU: al hacer scroll el navbar se mueve como una sola pieza
+       (sin volver a pintar sus sombras y filtros en cada cuadro, que lo hacía temblar) */
+    will-change: transform;
+    backface-visibility: hidden;
   }
+  /* Al bajar aparece una franja de cielo detrás del navbar, para que el contenido no
+     se vea entre los personajes y las nubes. Opaca y sin desenfoque (backdrop-filter):
+     el desenfoque obligaba a recalcular todo lo de atrás en cada cuadro del scroll. */
+  .site-header::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    content: "";
+    background: linear-gradient(180deg, #5cbaf5 0%, #aadefd 100%);
+    box-shadow: 0 8px 22px rgb(26 73 153 / 20%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .site-header.is-stuck::before { opacity: 1; }
 
   .nav-shell {
     position: relative;
@@ -652,30 +686,46 @@ const mobileCloudStrip =
     .mmenu[hidden] { display: none; }
     @keyframes drop { from { opacity: 0; transform: translateY(-10px) scale(.98); } }
     .mmenu__head {
-      position: relative;
       display: flex;
       align-items: center;
-      min-height: 5.6rem;
-      padding: .4rem .8rem 1.1rem .4rem;
-      background:
-        radial-gradient(circle 1px at 30% 30%, #fff 98%, transparent) 0 0 / 2.3rem 1.9rem,
-        linear-gradient(180deg, #36a9ee, #9bdcfd);
+      gap: .75rem;
+      padding: .9rem .9rem .9rem 1.1rem;
+      background: linear-gradient(180deg, #eaf6ff, #f7fbff);
+      box-shadow: inset 0 -2px 0 #e1eefb;
     }
-    .mmenu__head > :global(.brand) { z-index: 1; }
-    .mmenu__deco { position: absolute; height: auto; object-fit: contain; pointer-events: none; }
-    .mmenu__deco--star { left: 56%; top: .7rem; width: 3.4rem; }
-    .mmenu__deco--rocket { left: 73%; top: .5rem; width: 3.2rem; }
-    .mmenu__close { position: relative; z-index: 1; margin: 0 0 .5rem auto; border-radius: 50%; color: var(--navy); background: #fff; box-shadow: 0 4px 10px rgb(26 73 153 / 20%); }
-    .mmenu__list { display: grid; grid-template-columns: repeat(4, 1fr); gap: .65rem; margin: 0; padding: 1rem 1rem 1.2rem; list-style: none; }
+    /* Logo más grande y sin nube: emblema + nombre + lema */
+    .mmenu__head > :global(.brand) {
+      width: min(18rem, calc(100% - 3.75rem));
+      margin-right: auto;
+      padding: 0;
+      gap: .55rem;
+    }
+    .mmenu__head :global(.brand__mark) { width: clamp(3.4rem, 16vw, 4.4rem); }
+    .mmenu__head :global(.brand__text) { gap: .25rem; }
+    .mmenu__close { flex: none; border-radius: 50%; color: var(--navy); background: #fff; box-shadow: 0 0 0 2px #d6e9fb, 0 4px 10px rgb(26 73 153 / 18%); }
+
+    /* Cuadrícula de opciones: la última fila queda centrada (Contacto no queda suelto a un lado) */
+    .mmenu__list {
+      --cols: 4;
+      --gap: .65rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--gap);
+      margin: 0;
+      padding: 1.1rem 1rem 1.3rem;
+      list-style: none;
+    }
+    .mmenu__list > li { flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols)); }
     .mmenu__link {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: .2rem;
+      gap: .3rem;
+      height: 100%;
       min-height: 5.6rem;
       padding: .6rem .3rem;
-      border: 2px solid #fff;
       border-radius: 1.3rem;
       color: var(--navy);
       font-size: 1rem;
@@ -684,9 +734,11 @@ const mobileCloudStrip =
       text-align: center;
       text-decoration: none;
       background: #fff;
-      box-shadow: 0 4px 12px rgb(26 73 153 / 13%);
+      box-shadow: 0 0 0 1.5px #e3eefb, 0 4px 12px rgb(26 73 153 / 10%);
+      transition: transform .18s ease, box-shadow .18s ease;
     }
-    .mmenu__link.is-active { border-color: #ffe27a; background: #fff3b4; }
+    .mmenu__link:active { transform: scale(.97); }
+    .mmenu__link.is-active { background: #fff3b4; box-shadow: 0 0 0 2px #ffd54a, 0 4px 12px rgb(210 150 0 / 18%); }
     .mmenu__cta { position: relative; z-index: 1; display: flex; width: min(22rem, calc(100% - 6rem)); margin: 0 auto; font-size: 1.05rem; }
     .mmenu__grass { position: absolute; bottom: -.3rem; width: 4.4rem; height: auto; object-fit: contain; pointer-events: none; }
     .mmenu__grass--l { left: -.5rem; }
@@ -696,18 +748,16 @@ const mobileCloudStrip =
   @media (max-width: 560px) {
     .mbar__cta { width: 2.9rem; padding: 0; }
     .mbar__cta-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-    .mmenu__list { grid-template-columns: repeat(3, 1fr); }
-    .mmenu__link { font-size: .88rem; }
-    .mmenu__deco--rocket { display: none; }
+    .mmenu__list { --cols: 3; }
+    .mmenu__link { font-size: .92rem; }
   }
   @media (max-width: 400px) {
     .mbar { gap: .3rem; padding-right: .5rem; }
     .mbar__cta, .mbar__search, .mbar__menu { width: 2.6rem; min-height: 2.6rem; }
-    .mmenu__list { gap: .5rem; padding-inline: .75rem; }
-    .mmenu__link { min-height: 5rem; font-size: .8rem; }
-    .mmenu__deco--star { display: none; }
+    .mmenu__list { --gap: .5rem; padding-inline: .75rem; }
+    .mmenu__link { min-height: 5.2rem; font-size: .84rem; }
   }
   @media (max-width: 340px) {
-    .mmenu__list { grid-template-columns: repeat(2, 1fr); }
+    .mmenu__list { --cols: 2; }
   }
 </style>

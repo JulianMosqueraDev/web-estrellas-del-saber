@@ -47,29 +47,6 @@ const { cloud = true, tagline = false } = Astro.props;
     max-width: 100%;
     filter: saturate(1.25) contrast(1.08) drop-shadow(0 1px 0 rgb(16 40 95 / 30%));
   }
-
-  /* Hover: contorno amarillo que sigue la silueta del logo (como las ilustraciones del hero).
-     En reposo las sombras son transparentes para poder animarlas. */
-  .brand {
-    filter:
-      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
-      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
-      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
-      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
-      drop-shadow(0 0 0 rgb(255 200 40 / 0%));
-    transition: filter .3s ease;
-  }
-  @media (hover: hover) {
-    .brand:hover {
-      filter:
-        drop-shadow(2.5px 0 0 #ffd232)
-        drop-shadow(-2.5px 0 0 #ffd232)
-        drop-shadow(0 2.5px 0 #ffd232)
-        drop-shadow(0 -2.5px 0 #ffd232)
-        drop-shadow(0 0 10px rgb(255 200 40 / 70%));
-    }
-  }
-
   @media (min-width: 768px) {
     .brandCloud { inset: -.45rem -1.3rem; left: -2.1rem; width: calc(100% + 3.4rem); }
   }
