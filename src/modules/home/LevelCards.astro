@@ -157,4 +157,21 @@ import { tonoVars } from "../../data/tonos";
     .level-card__icon { width: 3.1rem; }
     .level-card__name { font-size: 1.2rem; }
   }
+
+  /* Escritorio: medidas en unidades del mock (--hu) para que el hero quepa en una pantalla */
+  @media (min-width: 1200px) {
+    .levels { padding: calc(8 * var(--hu)); border-radius: calc(22 * var(--hu)); }
+    .levels__list { gap: calc(12 * var(--hu)); }
+    .level-card {
+      gap: calc(10 * var(--hu));
+      min-height: calc(68 * var(--hu));
+      padding: calc(7 * var(--hu)) calc(10 * var(--hu));
+      border-radius: calc(16 * var(--hu));
+    }
+    .level-card__icon { width: calc(46 * var(--hu)); }
+    .level-card__name { font-size: calc(19 * var(--hu)); }
+    .level-card__age { font-size: calc(14.5 * var(--hu)); }
+    .level-card__go { width: calc(30 * var(--hu)); height: calc(30 * var(--hu)); }
+    .level-card__go :global(svg) { width: calc(17 * var(--hu)); height: calc(17 * var(--hu)); }
+  }
 </style>

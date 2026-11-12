@@ -156,7 +156,7 @@ const sparkles: [number, number, number][] = [
     list-style: none;
   }
   /* Escritorio ancho: cada descripción en un solo renglón, como en el mock */
-  @media (min-width: 1400px) {
+  @media (min-width: 1200px) {
     .benefits__list { grid-template-columns: repeat(4, auto); }
     .benefit__text span { white-space: nowrap; }
   }
@@ -251,5 +251,33 @@ const sparkles: [number, number, number][] = [
   }
   @media (max-width: 560px) {
     .benefits__list { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  }
+
+  /* Escritorio: medidas en unidades del mock (--hu) para que el hero quepa en una pantalla */
+  @media (min-width: 1200px) {
+    .benefits {
+      --wave-h: calc(110 * var(--hu));
+      margin-top: calc(-0.8 * var(--wave-h));
+    }
+    .benefits__band { padding-bottom: calc(50 * var(--hu)); }
+    .benefits__inner {
+      grid-template-columns: minmax(0, 1fr) calc(190 * var(--hu));
+      gap: calc(20 * var(--hu));
+      width: calc(1412 * var(--hu));
+      max-width: 100%;
+      padding-top: calc(2 * var(--hu));
+    }
+    .benefits__list { gap: calc(18 * var(--hu)) calc(22 * var(--hu)); padding-left: calc(22 * var(--hu)); }
+    .benefit { gap: calc(12 * var(--hu)); }
+    .benefit__icon { width: calc(48 * var(--hu)); height: calc(48 * var(--hu)); }
+    .benefit__text { gap: calc(2 * var(--hu)); }
+    .benefit__text strong { font-size: calc(17.5 * var(--hu)); }
+    .benefit__text span { font-size: calc(13.5 * var(--hu)); }
+
+    .benefits__mascot { min-height: calc(50 * var(--hu)); }
+    .benefits__trail { width: calc(135 * var(--hu)); }
+    .benefits__star { bottom: calc(-40 * var(--hu)); width: calc(100 * var(--hu)); }
+    .benefits__globe { bottom: calc(-14 * var(--hu)); width: calc(86 * var(--hu)); }
+    .benefits__clouds { height: calc(52 * var(--hu)); }
   }
 </style>

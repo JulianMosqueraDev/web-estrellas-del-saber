@@ -99,7 +99,7 @@ const bankFront =
       ))}
 
       <!-- Nubes traseras: cubren el borde del fondo y pasan a blanco -->
-      <svg class="bank" viewBox="0 0 1536 160" preserveAspectRatio="xMidYMax slice">
+      <svg class="bank" viewBox="0 0 1536 160" preserveAspectRatio="none">
         <path d={bankBack} fill="url(#hero-bank-back)" filter="url(#hero-soft-glow)" />
       </svg>
     </div>
@@ -171,7 +171,7 @@ const bankFront =
     </div>
 
     <!-- Nubes delanteras: abrazan la base de los personajes -->
-    <svg class="bank bank--front" viewBox="0 0 1536 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <svg class="bank bank--front" viewBox="0 0 1536 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <path d={bankFront} fill="#fff" filter="url(#hero-cloud-shadow)" />
     </svg>
   </div>
@@ -239,16 +239,17 @@ const bankFront =
   }
 
   /* Bancos de nubes del pie de la fase 1 */
+  /* El SVG se estira (preserveAspectRatio="none"): el alto lo fija el CSS para que las
+     nubes no crezcan de más en pantallas anchas; el ancho mínimo evita lomas aplastadas */
   .bank {
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1536 / 160;
-    min-height: 4.5rem;
+    left: 50%;
+    width: max(100%, 43rem);
+    height: max(4.5rem, 10.4vw);
     overflow: visible;
     pointer-events: none;
+    transform: translateX(-50%);
   }
   .bank--front { z-index: 2; }
 
@@ -502,5 +503,42 @@ const bankFront =
   @media (max-width: 480px) {
     .hero__actions { flex-direction: column; align-items: center; gap: .85rem; }
     .hero-btn { width: min(19rem, 100%); }
+  }
+
+  /* ================= Escritorio: todo el hero en la primera pantalla =================
+     Medidas en unidades del mock (--hu, global.css): todo escala junto con el alto
+     de la ventana, así navbar + cielo + niveles + pilares + franja siempre caben. */
+  @media (min-width: 1200px) {
+    .bank { left: 0; width: 100%; height: calc(150 * var(--hu)); transform: none; }
+
+    .hero__content--sky {
+      grid-template-columns: minmax(0, 1fr) calc(590 * var(--hu)) minmax(0, 1fr);
+      width: calc(1536 * var(--hu));
+      max-width: 100%;
+      padding-block: calc(4 * var(--hu)) calc(30 * var(--hu));
+    }
+    .hero__lead { font-size: 2.95cqw; }
+
+    .hero__art { margin-bottom: calc(-22 * var(--hu)); }
+    .hero__mascot { width: calc(410 * var(--hu)); margin-left: calc(10 * var(--hu)); }
+    .hero__kids { width: calc(540 * var(--hu)); margin-right: calc(-10 * var(--hu)); }
+
+    .hero__actions { gap: calc(16 * var(--hu)) calc(26 * var(--hu)); margin-top: calc(-18 * var(--hu)); }
+    .hero-btn {
+      gap: calc(9 * var(--hu));
+      min-height: calc(50 * var(--hu));
+      padding: calc(5 * var(--hu)) calc(28 * var(--hu));
+      font-size: calc(19.5 * var(--hu));
+    }
+    .hero-btn :global(svg) { width: calc(22 * var(--hu)); height: calc(22 * var(--hu)); }
+    .hero-btn--video { padding-left: calc(6 * var(--hu)); }
+    .hero-btn__play { width: calc(38 * var(--hu)); height: calc(38 * var(--hu)); }
+    .hero-btn__play :global(svg) { width: calc(17 * var(--hu)); height: calc(17 * var(--hu)); }
+
+    .hero__content--ground {
+      width: calc(1412 * var(--hu));
+      max-width: 100%;
+      margin-top: calc(-28 * var(--hu));
+    }
   }
 </style>

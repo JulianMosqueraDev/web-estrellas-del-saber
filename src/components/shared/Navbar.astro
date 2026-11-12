@@ -402,7 +402,8 @@ const mobileCloudStrip =
 
   .nav-shell {
     position: relative;
-    max-width: 1480px;
+    /* En escritorio escala con el lienzo del hero (global.css → --nav-max) */
+    max-width: var(--nav-max, 1480px);
     margin: 0 auto;
     container-type: inline-size;
   }

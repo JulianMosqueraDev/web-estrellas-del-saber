@@ -11,7 +11,22 @@
 
   /* Alto aproximado del navbar (Navbar.astro: lienzo 1440 × 228, padding .3rem).
      Lo usa el hero para que su cielo continúe detrás del navbar. */
-  --nav-h: calc(0.3rem + min(100vw - 2 * clamp(0.75rem, 2vw, 1.5rem), 1480px) * 228 / 1440);
+  --nav-h: calc(0.3rem + min(100vw - 2 * clamp(0.75rem, 2vw, 1.5rem), var(--nav-max, 1480px)) * 228 / 1440);
+}
+
+/* Escritorio: el hero completo (navbar + cielo + niveles + pilares + franja) se ve en la
+   primera pantalla, como en mocks/hero/hero.png (lienzo de 1536 px de ancho).
+   --fw  ancho del lienzo: lo limita el alto de la ventana para que todo quepa.
+   --hu  1 unidad del mock (1 px del mock a 1536) → todas las medidas del hero en escritorio.
+   --nav-max  el navbar escala con el lienzo, con la misma proporción que en el mock.
+   Calibrado: el hero completo mide ≈ 0,686 × --fw de alto → --fw ≤ alto / 0,686 ≈ alto × 1,45.
+   Mínimo 1080 px para que los textos sigan legibles (en ventanas muy bajas queda un poco de scroll). */
+@media (min-width: 1200px) {
+  :root {
+    --fw: min(100vw - 2.5rem, clamp(1080px, (100svh - 1rem) * 1.45, 1680px));
+    --hu: calc(var(--fw) / 1536);
+    --nav-max: min(1480px, var(--fw) * 0.82);
+  }
 }
 
 @media (max-width: 767px) {

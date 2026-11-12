@@ -372,4 +372,42 @@ const decos: Deco[] = [
   @media (max-width: 360px) {
     .pillars__list { grid-template-columns: minmax(0, 1fr); }
   }
+
+  /* Escritorio: medidas en unidades del mock (--hu) para que el hero quepa en una pantalla */
+  @media (min-width: 1200px) {
+    .pillars {
+      grid-template-columns: calc(980 * var(--hu)) minmax(0, 1fr);
+      gap: calc(40 * var(--hu));
+      margin-top: calc(14 * var(--hu));
+    }
+    .pillars__title { gap: calc(12 * var(--hu)); margin-bottom: calc(12 * var(--hu)); font-size: calc(28 * var(--hu)); }
+    .pillars__title-star { width: calc(24 * var(--hu)); }
+    .pillars__list { gap: calc(16 * var(--hu)); }
+
+    .pillar-card {
+      min-height: calc(184 * var(--hu));
+      padding: calc(10 * var(--hu)) calc(14 * var(--hu)) calc(42 * var(--hu));
+    }
+    .pillar-card__icon { width: calc(64 * var(--hu)); }
+    .pillar-card__title { margin: calc(2 * var(--hu)) 0 calc(5 * var(--hu)); font-size: calc(22 * var(--hu)); }
+    .pillar-card__desc { max-width: calc(205 * var(--hu)); font-size: calc(15 * var(--hu)); }
+    .pillar-card__go { right: calc(14 * var(--hu)); bottom: calc(12 * var(--hu)); width: calc(32 * var(--hu)); height: calc(32 * var(--hu)); }
+    .pillar-card__go :global(svg) { width: calc(17 * var(--hu)); height: calc(17 * var(--hu)); }
+
+    /* La foto sube hasta casi la altura de las cards de niveles (como en el mock) */
+    .photo {
+      align-self: start;
+      margin: calc(-6 * var(--hu)) 0 calc(-24 * var(--hu));
+    }
+    .photo__star { top: calc(-16 * var(--hu)); width: calc(54 * var(--hu)); }
+    .photo__trail { right: calc(-50 * var(--hu)); width: calc(76 * var(--hu)); }
+    .photo__label {
+      bottom: calc(-8 * var(--hu));
+      gap: calc(10 * var(--hu));
+      padding: calc(10 * var(--hu)) calc(12 * var(--hu)) calc(10 * var(--hu)) calc(20 * var(--hu));
+      font-size: calc(19 * var(--hu));
+    }
+    .photo__go { width: calc(32 * var(--hu)); height: calc(32 * var(--hu)); }
+    .photo__go :global(svg) { width: calc(17 * var(--hu)); height: calc(17 * var(--hu)); }
+  }
 </style>
