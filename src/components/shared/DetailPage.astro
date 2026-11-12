@@ -1,0 +1,152 @@
+---
+/* Plantilla de las páginas de detalle (niveles, pilares…).
+   Slots: «icon» (ícono grande de la cabecera) y «others» (los <li> de la lista inferior,
+   con enlaces de clase «detail-chip»). */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../atoms/Icon.astro";
+import { tonoVars, type Tono } from "../../data/tonos";
+
+interface Props {
+  title: string;
+  /** Texto de la etiqueta bajo el título (ej. la edad del nivel) */
+  badge: string;
+  tono: Tono;
+  /** Miga intermedia: { label: "Niveles", href: "/#niveles" } */
+  parent: { label: string; href: string };
+  /** Título de la lista inferior (ej. «Otros niveles») */
+  othersTitle: string;
+}
+
+const { title, badge, tono, parent, othersTitle } = Astro.props;
+---
+
+<BaseLayout title={`${title} · Gimnasio Infantil Estrellas del Saber`}>
+  <main id="contenido" class="detail" style={tonoVars(tono)}>
+    <nav class="detail__crumbs" aria-label="Ruta de navegación">
+      <ol>
+        <li><a href="/">Inicio</a></li>
+        <li><a href={parent.href}>{parent.label}</a></li>
+        <li aria-current="page">{title}</li>
+      </ol>
+    </nav>
+
+    <header class="detail__head">
+      <span class="detail__icon"><slot name="icon" /></span>
+      <div>
+        <h1>{title}</h1>
+        <p class="detail__badge">{badge}</p>
+      </div>
+    </header>
+
+    <!-- Pendiente: contenido real de cada página -->
+    <section class="detail__body" aria-label={`Información de ${title}`}>
+      <p>Estamos preparando esta información. Muy pronto podrás conocer aquí todo sobre {title}.</p>
+      <div class="detail__actions">
+        <a class="detail-btn detail-btn--primary" href="/contacto#agenda">
+          <Icon name="calendar" size={20} />
+          <span>Agenda una visita</span>
+        </a>
+        <a class="detail-btn" href={parent.href}>Volver a {parent.label.toLowerCase()}</a>
+      </div>
+    </section>
+
+    <section class="detail__others" aria-labelledby="others-title">
+      <h2 id="others-title">{othersTitle}</h2>
+      <ul><slot name="others" /></ul>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .detail {
+    width: min(100% - 2rem, 60rem);
+    margin: 1.5rem auto 4rem;
+    color: #13306f;
+  }
+
+  .detail__crumbs ol { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 1rem; padding: 0; list-style: none; font-size: .95rem; }
+  .detail__crumbs li + li::before { content: "›"; margin-right: .4rem; color: #7a8bb0; }
+  .detail__crumbs a { color: #2b4a7a; }
+  .detail__crumbs [aria-current] { font-weight: 800; }
+
+  .detail__head {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2rem);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 3px solid #fff;
+    border-radius: 1.8rem;
+    background:
+      radial-gradient(circle at 12% 18%, rgb(255 255 255 / 75%), transparent 40%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    box-shadow: 0 0 0 1px var(--edge), 0 14px 30px rgb(30 80 150 / 14%);
+  }
+  .detail__icon { flex: none; width: clamp(5rem, 14vw, 7.5rem); }
+  .detail__icon :global(svg) { display: block; width: 100%; height: auto; }
+  .detail h1 {
+    margin: 0;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .detail__badge {
+    display: inline-block;
+    margin: .6rem 0 0;
+    padding: .3rem .9rem;
+    border-radius: 999px;
+    color: #fff;
+    font-weight: 800;
+    background: var(--accent);
+  }
+
+  .detail__body { margin-top: 1.5rem; font-size: 1.1rem; line-height: 1.6; }
+  .detail__body p { margin: 0; }
+  .detail__actions { display: flex; flex-wrap: wrap; gap: .8rem 1.2rem; margin-top: 1.2rem; font-family: "Baloo 2", "Nunito", sans-serif; }
+  .detail-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    min-height: 3rem;
+    padding: .3rem 1.4rem;
+    border: 2.5px solid #f2468c;
+    border-radius: 999px;
+    color: #13306f;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    background: #fff;
+    transition: transform .2s ease;
+  }
+  .detail-btn--primary { border-color: #fff; color: #fff; background: linear-gradient(180deg, #ff6aa6, #db2170); box-shadow: 0 6px 14px rgb(229 42 118 / 30%); }
+  .detail-btn:hover { transform: translateY(-3px); }
+
+  .detail__others { margin-top: 2.5rem; }
+  .detail__others h2 { margin: 0 0 .8rem; font-family: "Baloo 2", "Nunito", sans-serif; font-size: 1.5rem; }
+  .detail__others ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: .7rem; margin: 0; padding: 0; list-style: none; }
+
+  /* Chips de la lista inferior (vienen por slot, por eso :global) */
+  .detail__others :global(.detail-chip) {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    height: 100%;
+    padding: .55rem .8rem;
+    border: 2px solid #fff;
+    border-radius: 1rem;
+    color: #13306f;
+    text-decoration: none;
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    box-shadow: 0 0 0 1px var(--edge), 0 4px 10px rgb(30 80 150 / 10%);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .detail__others :global(.detail-chip svg) { flex: none; }
+  .detail__others :global(.detail-chip > span) { display: grid; line-height: 1.15; }
+  .detail__others :global(.detail-chip strong) { font-family: "Baloo 2", "Nunito", sans-serif; font-size: 1.1rem; }
+  .detail__others :global(.detail-chip small) { color: #2b4a7a; font-size: .9rem; font-weight: 700; }
+  .detail__others :global(.detail-chip:hover) { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 10px 18px rgb(30 80 150 / 16%); }
+
+  @media (max-width: 480px) {
+    .detail__head { flex-direction: column; text-align: center; }
+  }
+</style>

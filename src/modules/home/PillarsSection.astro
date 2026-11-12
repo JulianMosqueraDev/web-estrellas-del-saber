@@ -1,0 +1,375 @@
+---
+import { Image } from "astro:assets";
+import Icon from "../../components/atoms/Icon.astro";
+import FeatureIcon from "../../components/atoms/FeatureIcon.astro";
+import { pilares, pilarHref } from "../../data/pilares";
+import { tonoVars } from "../../data/tonos";
+import { sparklePath } from "../../utils/cloud-path";
+
+import estrellaAmarilla from "../../components/shared/icons/estrella-amarilla.png";
+// TEMPORAL: recorte de mocks/hero/hero.png. Reemplazar por una foto real del colegio.
+import fotoAprendizaje from "../../components/shared/icons/foto-aprendizaje-temporal.png";
+
+type Deco = { x: number; y: number; s: number; kind: "star" | "spark" | "blue" };
+
+// Estrellas y destellos alrededor de las cards (en % de la caja de los pilares)
+const decos: Deco[] = [
+  { x: -1.2, y: 10, s: 22, kind: "star" },
+  { x: 1.5, y: 30, s: 30, kind: "star" },
+  { x: -1.6, y: 62, s: 16, kind: "star" },
+  { x: 11, y: 2, s: 16, kind: "star" },
+  { x: 27, y: 20, s: 20, kind: "star" },
+  { x: 29.5, y: 24, s: 9, kind: "blue" },
+  { x: 53.5, y: 21, s: 18, kind: "star" },
+  { x: 76.5, y: 23, s: 9, kind: "blue" },
+  { x: 100.5, y: 18, s: 20, kind: "star" },
+  { x: 33, y: 92, s: 16, kind: "star" },
+  { x: 58.5, y: 89, s: 12, kind: "star" },
+  { x: 81.5, y: 91, s: 8, kind: "spark" },
+];
+---
+
+<section class="pillars" aria-labelledby="pilares-title">
+  <!-- Izquierda: título + 4 cards -->
+  <div class="pillars__main">
+    <div class="pillars__decos" aria-hidden="true">
+      {decos.map((d) =>
+        d.kind === "star" ? (
+          <Image src={estrellaAmarilla} alt="" width={64} format="webp" quality={72} class="deco" style={`left:${d.x}%;top:${d.y}%;width:${d.s}px`} />
+        ) : (
+          <svg class="deco twinkle" viewBox="-10 -10 20 20" style={`left:${d.x}%;top:${d.y}%;width:${d.s * 2}px`}>
+            <path d={sparklePath(0, 0, 10)} fill={d.kind === "blue" ? "#3cc7f5" : "#ffd23f"} />
+          </svg>
+        )
+      )}
+    </div>
+
+    <h2 id="pilares-title" class="pillars__title">
+      <Image src={estrellaAmarilla} alt="" width={64} format="webp" quality={72} class="pillars__title-star" />
+      <span>Nuestros pilares estrella</span>
+      <Image src={estrellaAmarilla} alt="" width={64} format="webp" quality={72} class="pillars__title-star" />
+    </h2>
+
+    <ul class="pillars__list">
+      {pilares.map((p, i) => (
+        <li>
+          <a class="pillar-card" href={pilarHref(p)} style={`${tonoVars(p.tono)};--title:${p.colorTitulo}`} data-shape={i}>
+            <span class="pillar-card__icon">
+              <FeatureIcon name={p.icono} size={72} idPrefix={`pilar-${p.slug}`} />
+            </span>
+            <span class="pillar-card__title">
+              <span>{p.lineas[0]}</span>{" "}<span>{p.lineas[1]}</span>
+            </span>
+            <span class="pillar-card__desc">{p.descripcion}</span>
+            <span class="pillar-card__go" aria-hidden="true"><Icon name="arrow-right" size={18} /></span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <!-- Derecha: foto en marco de nube -->
+  <figure class="photo">
+    <div class="photo__ring">
+      <div class="photo__frame">
+        <Image
+          src={fotoAprendizaje}
+          alt="Niños del colegio riendo juntos en el patio"
+          format="webp"
+          quality={88}
+          class="photo__img"
+        />
+      </div>
+    </div>
+    <Image src={estrellaAmarilla} alt="" width={120} format="webp" quality={80} class="photo__star" />
+    <svg class="photo__trail" viewBox="0 0 120 60" aria-hidden="true">
+      <circle cx="16" cy="30" r="5.5" />
+      <circle cx="38" cy="16" r="5.5" />
+      <circle cx="62" cy="22" r="5.5" />
+      <path d="M74 30c12 6 24 12 42 12" />
+    </svg>
+    <!-- Pendiente: crear la página /experiencias (galería de fotos) -->
+    <a class="photo__label" href="/experiencias">
+      <span>Así vivimos<br />el aprendizaje</span>
+      <span class="photo__go" aria-hidden="true"><Icon name="arrow-right" size={18} /></span>
+    </a>
+  </figure>
+</section>
+
+<style>
+  .pillars {
+    --cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M9 99C3 99 0 92 1.5 85 0 77 1 66 6 60 2 49 8 37 18 34 20 19 32 10 44 14 50 4 66 1 75 9 86 5 97 14 96 28 100 35 101 47 97 55 101 65 100 80 94 87 95 95 90 99 84 99Z'/%3E%3C/svg%3E");
+
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 72fr) minmax(0, 28fr);
+    align-items: end;
+    gap: 1.75rem;
+    margin-top: 1.1rem;
+  }
+
+  /* ---------- Título ---------- */
+  .pillars__main { position: relative; }
+  .pillars__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    margin: 0 0 1rem;
+    color: #1d2b7a;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: clamp(1.4rem, 1.9vw, 1.85rem);
+    font-weight: 800;
+    letter-spacing: .03em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .pillars__title-star { width: 1.6rem; height: auto; filter: drop-shadow(0 2px 2px rgb(200 130 0 / 30%)); }
+
+  .pillars__decos { position: absolute; inset: 0; pointer-events: none; }
+  .deco {
+    position: absolute;
+    z-index: 1;
+    height: auto;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 2px 3px rgb(200 130 0 / 22%));
+  }
+  .twinkle { animation: twinkle 3.2s ease-in-out infinite; }
+  .twinkle:nth-of-type(2n) { animation-delay: -1.4s; }
+  @keyframes twinkle {
+    0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: .55; transform: translate(-50%, -50%) scale(.8); }
+  }
+
+  /* ---------- Cards ---------- */
+  .pillars__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pillars__list > li { display: flex; }
+
+  /* Tono (--bg-1, --bg-2, --accent, --edge) y --title llegan por style desde data/pilares.ts */
+  .pillar-card {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    min-height: 13.6rem;
+    padding: .8rem 1rem 3rem;
+    border-radius: 2.6rem 3.2rem 2.4rem 2.8rem / 2.4rem 2.2rem 2.8rem 2.6rem;
+    color: #1d2b5f;
+    text-align: center;
+    text-decoration: none;
+    background:
+      radial-gradient(circle at 30% 12%, rgb(255 255 255 / 75%), transparent 42%),
+      linear-gradient(170deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    box-shadow:
+      0 0 0 3px rgb(255 255 255 / 85%),
+      0 0 0 4px var(--edge),
+      0 12px 26px rgb(30 80 150 / 13%);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  /* Formas orgánicas distintas, como en el mock */
+  .pillar-card[data-shape="1"] { border-radius: 3.2rem 2.4rem 3rem 2.4rem / 2.2rem 2.8rem 2.4rem 2.8rem; }
+  .pillar-card[data-shape="2"] { border-radius: 2.4rem 3rem 2.6rem 3.2rem / 2.8rem 2.4rem 2.6rem 2.2rem; }
+  .pillar-card[data-shape="3"] { border-radius: 3rem 2.6rem 3.2rem 2.4rem / 2.4rem 2.6rem 2.2rem 2.8rem; }
+
+  .pillar-card__icon {
+    display: grid;
+    width: clamp(4.2rem, 5.2vw, 5.2rem);
+    aspect-ratio: 1;
+    place-items: center;
+    transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  .pillar-card__icon :global(svg) { width: 100%; height: 100%; }
+
+  .pillar-card__title {
+    display: grid;
+    margin: .2rem 0 .35rem;
+    color: var(--title);
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: clamp(1.15rem, 1.6vw, 1.55rem);
+    font-weight: 800;
+    letter-spacing: .01em;
+    line-height: .98;
+    text-transform: uppercase;
+  }
+  .pillar-card__desc {
+    max-width: 14rem;
+    font-size: clamp(.92rem, 1.08vw, 1.06rem);
+    font-weight: 600;
+    line-height: 1.22;
+    text-wrap: balance;
+  }
+
+  .pillar-card__go {
+    position: absolute;
+    right: .9rem;
+    bottom: .8rem;
+    display: grid;
+    width: 2.1rem;
+    height: 2.1rem;
+    place-items: center;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--accent);
+    box-shadow: 0 4px 8px rgb(30 80 150 / 22%);
+    transition: transform .22s ease;
+  }
+
+  @media (hover: hover) {
+    .pillar-card:hover {
+      transform: translateY(-6px);
+      box-shadow:
+        0 0 0 3px rgb(255 255 255 / 90%),
+        0 0 0 5px var(--accent),
+        0 18px 30px rgb(30 80 150 / 20%);
+    }
+    .pillar-card:hover .pillar-card__icon { transform: rotate(-8deg) scale(1.1); }
+    .pillar-card:hover .pillar-card__go { transform: translateX(3px) scale(1.08); }
+  }
+  .pillar-card:focus-visible { outline-offset: 5px; }
+
+  /* ---------- Foto en nube ---------- */
+  .photo {
+    position: relative;
+    margin: 0 0 1.4rem;
+  }
+  .photo__ring {
+    padding: 3px;
+    background: #5aa9f0;
+    -webkit-mask: var(--cloud) center / 100% 100% no-repeat;
+    mask: var(--cloud) center / 100% 100% no-repeat;
+  }
+  .photo__frame {
+    padding: 7px;
+    background: #fff;
+    -webkit-mask: var(--cloud) center / 100% 100% no-repeat;
+    mask: var(--cloud) center / 100% 100% no-repeat;
+  }
+  .photo__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 362 / 214;
+    object-fit: cover;
+    -webkit-mask: var(--cloud) center / 100% 100% no-repeat;
+    mask: var(--cloud) center / 100% 100% no-repeat;
+  }
+  /* Sombra azulada alrededor de toda la nube */
+  .photo > .photo__ring { filter: drop-shadow(0 10px 18px rgb(30 80 150 / 22%)); }
+
+  .photo__star {
+    position: absolute;
+    top: -.9rem;
+    left: 5%;
+    width: clamp(2.8rem, 4vw, 3.8rem);
+    height: auto;
+    transform: rotate(-14deg);
+    filter:
+      drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff)
+      drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
+      drop-shadow(0 4px 5px rgb(200 130 0 / 35%));
+  }
+  .photo__trail {
+    position: absolute;
+    top: 8%;
+    right: -3.2rem;
+    width: 5rem;
+    fill: none;
+    stroke-linecap: round;
+  }
+  .photo__trail circle { stroke: #8d55e6; stroke-width: 2.6; }
+  .photo__trail path { stroke: #1d2b7a; stroke-width: 2.6; stroke-dasharray: 7 6; }
+
+  /* Etiqueta en nube blanca, montada sobre el borde inferior de la foto
+     (misma posición que en el mock: centrada al 57 % del ancho) */
+  .photo__label {
+    position: absolute;
+    top: 70%;
+    bottom: -.5rem;
+    left: 57%;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .7rem;
+    min-width: 58%;
+    padding: .7rem .8rem .7rem 1.3rem;
+    border-radius: 2.4rem 2.8rem 2.6rem 2.2rem / 2.2rem 2.4rem 2.2rem 2.4rem;
+    color: #1d2b7a;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: clamp(1.05rem, 1.35vw, 1.3rem);
+    font-weight: 700;
+    line-height: 1.02;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    background: #fff;
+    box-shadow: 0 10px 20px rgb(30 80 150 / 20%);
+    transform: translateX(-50%);
+    transition: transform .22s ease, box-shadow .22s ease;
+  }
+  /* Lomas de nube sobre la etiqueta */
+  .photo__label::before,
+  .photo__label::after {
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    background: #fff;
+    content: "";
+  }
+  .photo__label::before { top: -.75rem; left: 18%; width: 2.6rem; height: 2.2rem; }
+  .photo__label::after { top: -.5rem; left: 46%; width: 2rem; height: 1.7rem; }
+  .photo__go {
+    display: grid;
+    flex: none;
+    width: 2.1rem;
+    height: 2.1rem;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    background: linear-gradient(180deg, #3eb2ff, #1478e0);
+    box-shadow: 0 3px 6px rgb(20 120 224 / 35%);
+    transition: transform .22s ease;
+  }
+  @media (hover: hover) {
+    .photo__label:hover { transform: translateX(-50%) translateY(-3px); box-shadow: 0 14px 24px rgb(30 80 150 / 26%); }
+    .photo__label:hover .photo__go { transform: translateX(3px); }
+  }
+
+  /* ---------- Responsive ---------- */
+  /* Tablet: cards arriba, foto centrada debajo */
+  @media (max-width: 1199px) {
+    .pillars { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+    .photo { justify-self: center; width: min(100%, 26rem); }
+  }
+  @media (max-width: 899px) {
+    /* Las posiciones de la decoración están pensadas para la fila de 4 cards */
+    .pillars__decos { display: none; }
+    .pillars__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem; }
+    .pillar-card { min-height: 12rem; }
+    .pillar-card__title { font-size: 1.3rem; }
+  }
+  @media (max-width: 560px) {
+    .pillars__title { gap: .45rem; font-size: 1.25rem; }
+    .pillars__title-star { width: 1.2rem; }
+    .pillars__list { gap: .8rem; }
+    .pillar-card { min-height: 11.5rem; padding: .7rem .6rem 2.6rem; }
+    .pillar-card__icon { width: 3.6rem; }
+    .pillar-card__title { font-size: 1.08rem; }
+    .pillar-card__desc { font-size: .88rem; }
+    .pillar-card__go { right: 50%; bottom: .6rem; transform: translateX(50%); }
+    .photo__trail { display: none; }
+  }
+  @media (max-width: 360px) {
+    .pillars__list { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

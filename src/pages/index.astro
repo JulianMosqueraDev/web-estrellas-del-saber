@@ -1,14 +1,10 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../modules/home/Hero.astro";
 ---
 
 <BaseLayout>
-  <main class="page-preview" id="contenido">
-    <span class="page-preview__sparkle" aria-hidden="true">✦</span>
-    <p class="page-preview__eyebrow">Un mundo para aprender jugando</p>
-    <h1>Donde cada estrella,<br /><span>Brilla a su manera.</span></h1>
-    <p class="page-preview__copy">
-      Un espacio lleno de curiosidad, alegría y aventuras para crecer cada día.
-    </p>
+  <main id="contenido">
+    <Hero />
   </main>
 </BaseLayout>

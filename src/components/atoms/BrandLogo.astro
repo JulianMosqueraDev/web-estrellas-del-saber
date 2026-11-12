@@ -39,9 +39,36 @@ const { cloud = true, tagline = false } = Astro.props;
   }
   .brandCloud { position: absolute; z-index: 0; inset: -.45rem -.55rem; width: calc(100% + 1.1rem); height: calc(100% + .9rem); object-fit: fill; filter: drop-shadow(0 4px 5px rgb(26 73 153 / 12%)); pointer-events: none; }
   .brand__mark, .brand__word, .brand__lema { position: relative; z-index: 1; display: block; height: auto; object-fit: contain; }
-  .brand__mark { width: 4.6rem; filter: drop-shadow(0 2px 3px rgb(26 73 153 / 18%)); }
+  .brand__mark { width: 4.6rem; filter: saturate(1.12) drop-shadow(0 2px 3px rgb(26 73 153 / 22%)); }
   .brand__text { position: relative; z-index: 1; display: grid; gap: .15rem; min-width: 0; }
-  .brand__word, .brand__lema { width: 100%; max-width: 100%; }
+  /* Letras más vivas y con una sombra fina para que se despeguen de la nube blanca */
+  .brand__word, .brand__lema {
+    width: 100%;
+    max-width: 100%;
+    filter: saturate(1.25) contrast(1.08) drop-shadow(0 1px 0 rgb(16 40 95 / 30%));
+  }
+
+  /* Hover: contorno amarillo que sigue la silueta del logo (como las ilustraciones del hero).
+     En reposo las sombras son transparentes para poder animarlas. */
+  .brand {
+    filter:
+      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
+      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
+      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
+      drop-shadow(0 0 0 rgb(255 210 50 / 0%))
+      drop-shadow(0 0 0 rgb(255 200 40 / 0%));
+    transition: filter .3s ease;
+  }
+  @media (hover: hover) {
+    .brand:hover {
+      filter:
+        drop-shadow(2.5px 0 0 #ffd232)
+        drop-shadow(-2.5px 0 0 #ffd232)
+        drop-shadow(0 2.5px 0 #ffd232)
+        drop-shadow(0 -2.5px 0 #ffd232)
+        drop-shadow(0 0 10px rgb(255 200 40 / 70%));
+    }
+  }
 
   @media (min-width: 768px) {
     .brandCloud { inset: -.45rem -1.3rem; left: -2.1rem; width: calc(100% + 3.4rem); }

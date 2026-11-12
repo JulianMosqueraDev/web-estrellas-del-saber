@@ -1,0 +1,41 @@
+---
+import DetailPage from "../../components/shared/DetailPage.astro";
+import FeatureIcon from "../../components/atoms/FeatureIcon.astro";
+import { pilares, pilarHref, pilarTitulo, type Pilar } from "../../data/pilares";
+import { tonoVars } from "../../data/tonos";
+
+/* Una página por pilar: /pilares/exploracion-creativa, /pilares/aprendizaje-jugando, … */
+export function getStaticPaths() {
+  return pilares.map((pilar) => ({ params: { slug: pilar.slug }, props: { pilar } }));
+}
+
+interface Props {
+  pilar: Pilar;
+}
+
+const { pilar } = Astro.props;
+const otros = pilares.filter((p) => p.slug !== pilar.slug);
+---
+
+<DetailPage
+  title={pilarTitulo(pilar)}
+  badge={pilar.descripcion}
+  tono={pilar.tono}
+  parent={{ label: "Pilares", href: "/#pilares-title" }}
+  othersTitle="Otros pilares"
+>
+  <FeatureIcon slot="icon" name={pilar.icono} size={120} idPrefix={`page-${pilar.slug}`} />
+  <Fragment slot="others">
+    {otros.map((p) => (
+      <li>
+        <a class="detail-chip" href={pilarHref(p)} style={tonoVars(p.tono)}>
+          <FeatureIcon name={p.icono} size={34} idPrefix={`chip-${p.slug}`} />
+          <span>
+            <strong>{pilarTitulo(p)}</strong>
+            <small>{p.descripcion}</small>
+          </span>
+        </a>
+      </li>
+    ))}
+  </Fragment>
+</DetailPage>

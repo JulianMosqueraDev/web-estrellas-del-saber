@@ -8,6 +8,16 @@
   color: #10285f;
   background: #f7f9ff;
   font-weight: 600;
+
+  /* Alto aproximado del navbar (Navbar.astro: lienzo 1440 × 228, padding .3rem).
+     Lo usa el hero para que su cielo continúe detrás del navbar. */
+  --nav-h: calc(0.3rem + min(100vw - 2 * clamp(0.75rem, 2vw, 1.5rem), 1480px) * 228 / 1440);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-h: 7rem;
+  }
 }
 
 * {
@@ -44,95 +54,23 @@ a {
   color: inherit;
 }
 
+/* Texto solo para lectores de pantalla y buscadores */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 button:focus-visible,
 a:focus-visible {
   outline: 3px solid #7a4bff;
   outline-offset: 4px;
-}
-
-.page-preview {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  align-content: start;
-  min-height: 70vh;
-  padding: clamp(5rem, 12vw, 10rem) 1.5rem 6rem;
-  overflow: hidden;
-  text-align: center;
-}
-
-.page-preview::before,
-.page-preview::after {
-  position: absolute;
-  z-index: -1;
-  width: 14rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  content: "";
-}
-
-.page-preview::before {
-  top: 8rem;
-  left: max(-5rem, calc(50% - 32rem));
-  background: radial-gradient(
-    circle,
-    #fff0a5 0 37%,
-    #fff6d3 38% 59%,
-    transparent 60%
-  );
-}
-
-.page-preview::after {
-  top: 16rem;
-  right: max(-4rem, calc(50% - 33rem));
-  background: radial-gradient(
-    circle,
-    #c7f5dc 0 37%,
-    #e7fff1 38% 59%,
-    transparent 60%
-  );
-}
-
-.page-preview__sparkle {
-  display: grid;
-  width: 3rem;
-  aspect-ratio: 1;
-  place-items: center;
-  border-radius: 1rem;
-  color: #ffba00;
-  background: #fff1bb;
-  font-size: 1.7rem;
-  box-shadow: 0 8px 20px rgb(227 169 37 / 20%);
-}
-
-.page-preview__eyebrow {
-  margin: 1.2rem 0 0.6rem;
-  color: #1686ca;
-  font-size: 0.83rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.page-preview h1 {
-  margin: 0;
-  color: #12275b;
-  font-size: clamp(2.5rem, 7vw, 5.25rem);
-  font-weight: 900;
-  letter-spacing: -0.055em;
-  line-height: 0.98;
-}
-
-.page-preview h1 span {
-  color: #ec4c9b;
-}
-
-.page-preview__copy {
-  max-width: 30rem;
-  margin: 1.25rem 0 0;
-  color: #536687;
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  line-height: 1.65;
 }
 
 @media (prefers-reduced-motion: reduce) {

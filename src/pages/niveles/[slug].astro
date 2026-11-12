@@ -1,0 +1,41 @@
+---
+import DetailPage from "../../components/shared/DetailPage.astro";
+import LevelIcon from "../../components/atoms/LevelIcon.astro";
+import { niveles, nivelHref, type Nivel } from "../../data/niveles";
+import { tonoVars } from "../../data/tonos";
+
+/* Una página por nivel: /niveles/caminadores, /niveles/pre-jardin, … */
+export function getStaticPaths() {
+  return niveles.map((nivel) => ({ params: { slug: nivel.slug }, props: { nivel } }));
+}
+
+interface Props {
+  nivel: Nivel;
+}
+
+const { nivel } = Astro.props;
+const otros = niveles.filter((n) => n.slug !== nivel.slug);
+---
+
+<DetailPage
+  title={nivel.nombre}
+  badge={nivel.edad}
+  tono={nivel.tono}
+  parent={{ label: "Niveles", href: "/#niveles" }}
+  othersTitle="Otros niveles"
+>
+  <LevelIcon slot="icon" name={nivel.icono} size={120} idPrefix={`page-${nivel.slug}`} />
+  <Fragment slot="others">
+    {otros.map((n) => (
+      <li>
+        <a class="detail-chip" href={nivelHref(n)} style={tonoVars(n.tono)}>
+          <LevelIcon name={n.icono} size={34} idPrefix={`chip-${n.slug}`} />
+          <span>
+            <strong>{n.nombre}</strong>
+            <small>{n.edad}</small>
+          </span>
+        </a>
+      </li>
+    ))}
+  </Fragment>
+</DetailPage>

@@ -1,0 +1,160 @@
+---
+import Icon from "../../components/atoms/Icon.astro";
+import LevelIcon from "../../components/atoms/LevelIcon.astro";
+import { niveles, nivelHref } from "../../data/niveles";
+import { tonoVars } from "../../data/tonos";
+---
+
+<!-- Franja de niveles: cada card lleva a la página del nivel -->
+<section class="levels" id="niveles" aria-labelledby="niveles-title">
+  <h2 id="niveles-title" class="sr-only">Nuestros niveles</h2>
+  <ul class="levels__list">
+    {niveles.map((n) => (
+      <li class="levels__item">
+        <a class="level-card" href={nivelHref(n)} style={tonoVars(n.tono)}>
+          <span class="level-card__icon">
+            <LevelIcon name={n.icono} size={56} idPrefix={`card-${n.slug}`} />
+          </span>
+          <span class="level-card__text">
+            <span class="level-card__name">{n.nombre}</span>
+            <span class="level-card__age">{n.edad}</span>
+          </span>
+          <span class="level-card__go" aria-hidden="true">
+            <Icon name="arrow-right" size={20} />
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  /* Panel blanco que agrupa las cards */
+  .levels {
+    position: relative;
+    z-index: 3;
+    padding: .7rem;
+    border: 2px solid #fff;
+    border-radius: 1.6rem;
+    background: rgb(255 255 255 / 88%);
+    box-shadow:
+      0 14px 34px rgb(30 80 150 / 14%),
+      0 2px 0 rgb(214 233 251 / 80%);
+    backdrop-filter: blur(6px);
+  }
+
+  .levels__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .levels__item { flex: 1 1 0; min-width: 0; }
+
+  /* ---------- Card ---------- */
+  /* El tono (--bg-1, --bg-2, --accent, --edge) llega por style desde data/niveles.ts */
+  .level-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(.45rem, .6vw, .65rem);
+    height: 100%;
+    min-height: 5.2rem;
+    padding: .55rem .65rem .55rem .6rem;
+    border: 2px solid #fff;
+    border-radius: 1.15rem;
+    color: #13306f;
+    text-decoration: none;
+    background:
+      radial-gradient(circle at 18% 20%, rgb(255 255 255 / 70%), transparent 45%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    box-shadow:
+      0 0 0 1px var(--edge),
+      0 6px 14px rgb(30 80 150 / 10%),
+      inset 0 -3px 0 rgb(0 0 0 / 4%);
+    transition: transform .22s ease, box-shadow .22s ease;
+  }
+  .level-card__icon {
+    display: grid;
+    flex: none;
+    width: clamp(2.6rem, 3.4vw, 3.06rem);
+    aspect-ratio: 1;
+    place-items: center;
+    transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  .level-card__icon :global(svg) { width: 100%; height: 100%; }
+
+  .level-card__text { display: grid; gap: .1rem; min-width: 0; }
+  .level-card__name {
+    overflow: hidden;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: clamp(1.02rem, 1.32vw, 1.19rem);
+    font-weight: 700;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .level-card__age {
+    color: #2b4a7a;
+    font-size: clamp(.86rem, 1vw, 1rem);
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  /* Botón de flecha: blanco en reposo, se llena con el tono al pasar el mouse */
+  .level-card__go {
+    display: grid;
+    flex: none;
+    width: 1.85rem;
+    height: 1.85rem;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--accent);
+    background: #fff;
+    box-shadow: 0 3px 8px rgb(30 80 150 / 16%), inset 0 0 0 1.5px var(--edge);
+    transition: background-color .22s ease, color .22s ease, transform .22s ease;
+  }
+  .level-card__go :global(svg) { width: 1.15rem; height: 1.15rem; transition: transform .22s ease; }
+
+  @media (hover: hover) {
+    .level-card:hover {
+      transform: translateY(-5px);
+      box-shadow:
+        0 0 0 2px var(--accent),
+        0 14px 24px rgb(30 80 150 / 18%),
+        inset 0 -3px 0 rgb(0 0 0 / 4%);
+    }
+    .level-card:hover .level-card__icon { transform: rotate(-8deg) scale(1.12); }
+    .level-card:hover .level-card__go { color: #fff; background: var(--accent); }
+    .level-card:hover .level-card__go :global(svg) { transform: translateX(2px); }
+  }
+  .level-card:focus-visible { outline-offset: 3px; }
+  .level-card:active { transform: translateY(-1px); }
+
+  /* Tablet: 3 + 2 centradas */
+  @media (max-width: 1199px) {
+    .levels__item { flex: 0 1 calc((100% - 1.5rem) / 3); }
+    .level-card__icon { width: 2.9rem; }
+    .level-card__name { font-size: 1.12rem; }
+    .level-card__age { font-size: .92rem; }
+  }
+  /* Móvil grande: 2 por fila */
+  @media (max-width: 767px) {
+    .levels { padding: .55rem; border-radius: 1.3rem; }
+    .levels__list { gap: .55rem; }
+    .levels__item { flex-basis: calc((100% - .55rem) / 2); }
+    .level-card { min-height: 4.6rem; padding: .5rem .55rem; }
+    .level-card__go { width: 2rem; height: 2rem; }
+  }
+  /* Teléfonos: una por fila */
+  @media (max-width: 560px) {
+    .levels__item { flex-basis: 100%; }
+    .level-card { min-height: 4.4rem; }
+    .level-card__icon { width: 3.1rem; }
+    .level-card__name { font-size: 1.2rem; }
+  }
+</style>
