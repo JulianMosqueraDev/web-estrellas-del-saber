@@ -502,7 +502,10 @@ const bankFront =
   /* Teléfonos: los botones se apilan, anchos y fáciles de tocar */
   @media (max-width: 480px) {
     .hero__actions { flex-direction: column; align-items: center; gap: .85rem; }
-    .hero-btn { width: min(19rem, 100%); }
+    /* Botones anchos: texto centrado y el ícono en la esquina */
+    .hero-btn { position: relative; width: min(19rem, 100%); padding-inline: 3.2rem; }
+    .hero-btn--primary :global(svg) { position: absolute; top: 0; right: 1.1rem; bottom: 0; margin-block: auto; }
+    .hero-btn__play { position: absolute; top: 0; bottom: 0; left: .35rem; margin-block: auto; }
   }
 
   /* ================= Escritorio: todo el hero en la primera pantalla =================

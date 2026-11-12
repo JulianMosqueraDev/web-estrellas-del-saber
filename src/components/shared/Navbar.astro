@@ -309,11 +309,11 @@ const sparkles: [number, number, number][] = [
       <Image src={pasto2} alt="" width={100} format="webp" quality={72} class="mbar__tuft mbar__tuft--r" aria-hidden="true" />
       <BrandLogo cloud={false} />
       <div class="mbar__actions">
+        <button class="mbar__search" type="button" aria-label="Buscar"><Icon name="search" size={22} /></button>
         <a class="mbar__cta" href="/contacto#agenda">
           <Icon name="calendar" size={20} />
           <span class="mbar__cta-label">Agenda una visita</span>
         </a>
-        <button class="mbar__search" type="button" aria-label="Buscar"><Icon name="search" size={22} /></button>
         <button class="mbar__menu" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>
           <Icon name="menu" size={24} />
         </button>
@@ -789,6 +789,18 @@ const sparkles: [number, number, number][] = [
     /* Respuesta al tocar el botón ☰ */
     .mbar__menu { transition: transform .15s ease; }
     .mbar__menu:active { transform: scale(.9); }
+
+    /* Al cargar, los botones de la barra aparecen de izquierda a derecha: lupa → calendario → menú */
+    .mbar__cta,
+    .mbar__search,
+    .mbar__menu { animation: btn-pop .55s cubic-bezier(.34, 1.56, .64, 1) backwards; }
+    .mbar__search { animation-delay: .2s; }
+    .mbar__cta { animation-delay: .42s; }
+    .mbar__menu { animation-delay: .64s; }
+    @keyframes btn-pop {
+      from { opacity: 0; transform: scale(.3) rotate(-25deg); }
+      65% { opacity: 1; transform: scale(1.12) rotate(5deg); }
+    }
     .mmenu__head {
       display: flex;
       align-items: center;
